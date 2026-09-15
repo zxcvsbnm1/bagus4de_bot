@@ -1,23 +1,79 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAGUS4DE</title>
-<style>body{margin:0;background:#0a0a0a;color:#fff;font-family:Arial}.top{background:#111;padding:12px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid #222}.top a{text-decoration:none;padding:8px 14px;border-radius:20px;background:#222;color:#fff}.top a.on{background:#ffcc00;color:#000;font-weight:700}.wrap{padding:16px}.card{background:#151515;border:1px solid #222;border-radius:16px;padding:16px}.item{border-bottom:1px solid #222;padding:12px 0}.item:last-child{border:0}.l{font-size:11px;color:#666;margin-bottom:5px}.v{font-size:17px;font-weight:700;word-break:break-all;line-height:1.5}.v.y{color:#ffcc00}</style>
-</head><body>
-<div class="top"><b style="color:#ffcc00;margin-right:6px">BAGUS4DE</b><a href="/?pasaran=sdy" id="a-sdy">SDY</a><a href="/?pasaran=sgp" id="a-sgp">SGP</a><a href="/?pasaran=hk" id="a-hk">HK</a></div>
-<div class="wrap"><h2 id="judul" style="color:#ffcc00">Prediksi Hari Ini</h2><div class="card" id="box">Loading...</div></div>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAGUS4DE</title>
+<style>
+  body{background:#0f0f0f;color:#fff;font-family:sans-serif;margin:0;padding:0}
+  .header{display:flex;gap:8px;padding:12px;background:#000;position:sticky;top:0;z-index:10;overflow:auto}
+  .header button{border-radius:20px;padding:8px 18px;border:none;background:#222;color:#fff;white-space:nowrap}
+  .header button.active{background:#ffcc00;color:#000;font-weight:bold}
+  .container{padding:12px}
+  .card{background:#1e1e1e;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #2a2a2a}
+  .label{font-size:11px;color:#888;letter-spacing:1px}
+  .value{font-size:18px;font-weight:bold;word-break:break-word;line-height:1.4;margin-top:4px}
+  .value.yellow{color:#ffcc00}
+  h2{color:#ffcc00;font-size:28px;margin:8px 0;text-transform:uppercase}
+  a.back{color:#888;text-decoration:none;font-size:14px}
+  /* INI KUNCI 1 KOLOM */
+  .grid{display:flex;flex-direction:column;gap:12px}
+</style>
+</head>
+<body>
+<div class="header">
+  <b style="color:#ffcc00;padding:8px 4px">BAGUS4DE</b>
+  <button id="btn-home" class="active" onclick="loadHome()">HOME</button>
+  <button id="btn-sdy" onclick="loadPasaran('sdy')">SDY</button>
+  <button id="btn-sgp" onclick="loadPasaran('sgp')">SGP</button>
+  <button id="btn-hk" onclick="loadPasaran('hk')">HK</button>
+</div>
+<div class="container" id="content">Loading...</div>
+
 <script>
-(async()=>{
-let p=new URLSearchParams(location.search).get('pasaran')||'hk';
-document.getElementById('judul').innerText='Prediksi '+p.toUpperCase()+' Hari Ini';
-let btn=document.getElementById('a-'+p);if(btn)btn.classList.add('on');
-let res=await fetch('/api/index?pasaran='+p+'&t='+Date.now());
-let json=await res.json();
-let d=json.prediksi?.data||json.prediksi||{};
-document.getElementById('box').innerHTML=`
-<div class="item"><div class="l">BBFS</div><div class="v">${d.bbfs||''}</div></div>
-<div class="item"><div class="l">4D JITU</div><div class="v y">${d['4d']||''}</div></div>
-<div class="item"><div class="l">3D</div><div class="v">${d['3d']||''}</div></div>
-<div class="item"><div class="l">2D</div><div class="v">${d['2d']||''}</div></div>
-`;
-})();
+const API = '/api/index?pasaran=';
+function setActive(id){
+  document.querySelectorAll('.header button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+async function loadPasaran(pas){
+  setActive('btn-'+pas);
+  document.getElementById('content').innerHTML = 'Loading '+pas.toUpperCase()+'...';
+  try{
+    const res = await fetch(API+pas+'&t='+Date.now());
+    const json = await res.json();
+    const d = json.prediksi || json; // FIX undefined
+    const nama = (d.pasaran || pas).toUpperCase();
+    document.getElementById('content').innerHTML = `
+      <a class="back" href="javascript:loadHome()">← Kembali ke Home</a>
+      <h2>${nama}</h2>
+      <div class="grid">
+        <div class="card"><div class="label">BBFS</div><div class="value">${d.bbfs || '-'}</div></div>
+        <div class="card"><div class="label">4D JITU</div><div class="value yellow">${d['4d'] || d.jitu4d || '-'}</div></div>
+        <div class="card"><div class="label">3D</div><div class="value">${d['3d'] || '-'}</div></div>
+        <div class="card"><div class="label">2D</div><div class="value">${d['2d'] || '-'}</div></div>
+      </div>`;
+  }catch(e){
+    document.getElementById('content').innerHTML = 'Error: '+e;
+  }
+}
+async function loadHome(){
+  setActive('btn-home');
+  document.getElementById('content').innerHTML = 'Loading...';
+  const pasarans = ['sdy','sgp','hk'];
+  let html = '<div class="grid">';
+  for(let p of pasarans){
+    try{
+      const res = await fetch(API+p+'&t='+Date.now());
+      const json = await res.json();
+      const d = json.prediksi || json;
+      html+=`<div class="card" onclick="loadPasaran('${p}')"><div class="label">${p.toUpperCase()}</div><div class="value" style="font-size:14px">${d.bbfs || ''}</div></div>`;
+    }catch{}
+  }
+  html+='</div>';
+  document.getElementById('content').innerHTML = html;
+}
+loadHome();
 </script>
-</body></html>
+</body>
+</html>
