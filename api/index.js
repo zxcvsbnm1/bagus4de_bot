@@ -1,32 +1,27 @@
-export default async function handler(req, res) {
-  // Biar gak error pas dibuka di browser Bosku
-  if (req.method === 'GET') {
-    return res.status(200).send('Bagus4de_bot Jalan Bosku!');
-  }
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
+module.exports = async (req, res) => {
   try {
-    const token = process.env.BOT_TOKEN;
-    const msg = req.body?.message;
-    
-    if (msg) {
-      const chatId = msg.chat.id;
-      let balas = 'Halo Bosku! Bot udah konek Bosku!';
+    const url = req.url || '';
+    const pasaran = url.split('?')[0].replace('/', '').toLowerCase() || 'sdy';
 
-      if (msg.text === '/start') balas = 'Mantap Bosku! /start jalan Bosku! Ketik /prediksi Bosku!';
-      if (msg.text === '/test') balas = 'Test OK Bosku! Vercel nyambung Bosku!';
-      if (msg.text === '/prediksi') balas = 'Prediksi Bagus4D Bosku: 1234 - Tembus Bosku!';
+    const { data, error } = await supabase
+     .from('prediksi')
+     .select('*')
+     .eq('pasaran', pasaran)
+     .single();
 
-      // Kirim balik Bosku
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: balas })
-      });
+    if (error ||!data) {
+      return res.status(200).send(`Pasaran ${pasaran} tidak ditemukan`);
     }
+
+    const d = data.data;
+    const text = `${d.judul}\n\nBBFS: ${d.bbfs}\n4D: ${d['4d']}\n3D: ${d['3d']}\n2D: ${d['2d']}`;
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(text);
   } catch (e) {
-    console.log(e);
+    res.status(500).send('Error: ' + e.message);
   }
-  
-  // WAJIB bales OK Bosku ke Telegram Bosku
-  res.status(200).send('OK');
-}
+};
