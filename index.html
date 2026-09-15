@@ -1,79 +1,61 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BAGUS4DE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body{background:#0f0f0f;color:#fff;font-family:sans-serif;margin:0;padding:0}
-  .header{display:flex;gap:8px;padding:12px;background:#000;position:sticky;top:0;z-index:10;overflow:auto}
-  .header button{border-radius:20px;padding:8px 18px;border:none;background:#222;color:#fff;white-space:nowrap}
-  .header button.active{background:#ffcc00;color:#000;font-weight:bold}
-  .container{padding:12px}
-  .card{background:#1e1e1e;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #2a2a2a}
-  .label{font-size:11px;color:#888;letter-spacing:1px}
-  .value{font-size:18px;font-weight:bold;word-break:break-word;line-height:1.4;margin-top:4px}
-  .value.yellow{color:#ffcc00}
-  h2{color:#ffcc00;font-size:28px;margin:8px 0;text-transform:uppercase}
-  a.back{color:#888;text-decoration:none;font-size:14px}
-  /* INI KUNCI 1 KOLOM */
-  .grid{display:flex;flex-direction:column;gap:12px}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e0e0e;color:#fff;font-family:sans-serif}
+  .top{background:#000;padding:10px;display:flex;gap:8px;overflow:auto;position:sticky;top:0}
+  .top button{border:none;padding:8px 16px;border-radius:20px;background:#222;color:#fff}
+  .top .active{background:#ffcc00;color:#000;font-weight:bold}
+  #content{padding:12px;max-width:600px;margin:0 auto}
+  .card{background:#1f1f1f;border:1px solid #333;border-radius:14px;padding:12px;margin-bottom:10px}
+  .lbl{font-size:10px;color:#777}
+  .val{font-size:18px;font-weight:bold;word-break:break-all;line-height:1.4;margin-top:4px}
+  .val.y{color:#ffcc00}
+  /* PAKSA 1 KOLOM DI SEMUA LAYAR */
+  .grid{display:block !important;grid-template-columns:1fr !important}
 </style>
 </head>
 <body>
-<div class="header">
-  <b style="color:#ffcc00;padding:8px 4px">BAGUS4DE</b>
-  <button id="btn-home" class="active" onclick="loadHome()">HOME</button>
-  <button id="btn-sdy" onclick="loadPasaran('sdy')">SDY</button>
-  <button id="btn-sgp" onclick="loadPasaran('sgp')">SGP</button>
-  <button id="btn-hk" onclick="loadPasaran('hk')">HK</button>
+<div class="top">
+  <b style="color:#ffcc00;line-height:32px">BAGUS4DE</b>
+  <button id="b-home" class="active" onclick="go('home')">HOME</button>
+  <button id="b-sdy" onclick="go('sdy')">SDY</button>
+  <button id="b-sgp" onclick="go('sgp')">SGP</button>
+  <button id="b-hk" onclick="go('hk')">HK</button>
 </div>
-<div class="container" id="content">Loading...</div>
-
+<div id="content">Loading...</div>
 <script>
-const API = '/api/index?pasaran=';
-function setActive(id){
-  document.querySelectorAll('.header button').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-async function loadPasaran(pas){
-  setActive('btn-'+pas);
-  document.getElementById('content').innerHTML = 'Loading '+pas.toUpperCase()+'...';
+async function go(p){
+  document.querySelectorAll('.top button').forEach(b=>b.classList.remove('active'));
+  let btn=document.getElementById('b-'+p); if(btn) btn.classList.add('active');
+  let box=document.getElementById('content');
+  if(p==='home'){
+    box.innerHTML='Loading...'; let h='';
+    for(let x of ['sdy','sgp','hk']){
+      try{let r=await fetch('/api/index?pasaran='+x+'&t='+Date.now());let j=await r.json();let d=j.prediksi||j;
+      h+=`<div class="card" onclick="go('${x}')"><div class="lbl">${x.toUpperCase()}</div><div class="val" style="font-size:14px">${d.bbfs||'-'}</div></div>`}catch{}
+    }
+    box.innerHTML=h; return;
+  }
+  box.innerHTML='Loading '+p+'...';
   try{
-    const res = await fetch(API+pas+'&t='+Date.now());
-    const json = await res.json();
-    const d = json.prediksi || json; // FIX undefined
-    const nama = (d.pasaran || pas).toUpperCase();
-    document.getElementById('content').innerHTML = `
-      <a class="back" href="javascript:loadHome()">← Kembali ke Home</a>
-      <h2>${nama}</h2>
+    let r=await fetch('/api/index?pasaran='+p+'&t='+Date.now());
+    let j=await r.json(); let d=j.prediksi||j;
+    // FIX undefined - tidak pakai d.pasaran lagi, pakai p langsung
+    box.innerHTML=`
+      <a href="javascript:go('home')" style="color:#888;text-decoration:none;font-size:13px">← Kembali ke Home</a>
+      <h2 style="color:#ffcc00;font-size:32px;margin:10px 0">${p.toUpperCase()}</h2>
       <div class="grid">
-        <div class="card"><div class="label">BBFS</div><div class="value">${d.bbfs || '-'}</div></div>
-        <div class="card"><div class="label">4D JITU</div><div class="value yellow">${d['4d'] || d.jitu4d || '-'}</div></div>
-        <div class="card"><div class="label">3D</div><div class="value">${d['3d'] || '-'}</div></div>
-        <div class="card"><div class="label">2D</div><div class="value">${d['2d'] || '-'}</div></div>
+        <div class="card"><div class="lbl">BBFS</div><div class="val">${d.bbfs||'-'}</div></div>
+        <div class="card"><div class="lbl">4D JITU</div><div class="val y">${d['4d']||d.jitu4d||'-'}</div></div>
+        <div class="card"><div class="lbl">3D</div><div class="val">${d['3d']||'-'}</div></div>
+        <div class="card"><div class="lbl">2D</div><div class="val">${d['2d']||'-'}</div></div>
       </div>`;
-  }catch(e){
-    document.getElementById('content').innerHTML = 'Error: '+e;
-  }
+  }catch(e){box.innerHTML='Error '+e}
 }
-async function loadHome(){
-  setActive('btn-home');
-  document.getElementById('content').innerHTML = 'Loading...';
-  const pasarans = ['sdy','sgp','hk'];
-  let html = '<div class="grid">';
-  for(let p of pasarans){
-    try{
-      const res = await fetch(API+p+'&t='+Date.now());
-      const json = await res.json();
-      const d = json.prediksi || json;
-      html+=`<div class="card" onclick="loadPasaran('${p}')"><div class="label">${p.toUpperCase()}</div><div class="value" style="font-size:14px">${d.bbfs || ''}</div></div>`;
-    }catch{}
-  }
-  html+='</div>';
-  document.getElementById('content').innerHTML = html;
-}
-loadHome();
+go('home');
 </script>
 </body>
 </html>
