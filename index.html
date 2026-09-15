@@ -3,50 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BAGUS4DE - Prediksi HK</title>
 <style>
-body{margin:0;background:#000;color:#fff;font-family:Arial}
-.top{background:#0e0e0e;padding:12px 15px;color:#ffcc00;font-weight:900;border-bottom:1px solid #222}
+body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial;padding:0}
+.header{background:#111;padding:12px 15px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #222}
+.logo{color:#ffcc00;font-weight:900}
+.header button{padding:7px 14px;border-radius:20px;border:none;background:#2a2a2a;color:#fff}
+.header button.active{background:#ffcc00;color:#000}
 .wrap{padding:16px}
-.judul{color:#ffcc00;font-weight:900;font-size:18px;margin-bottom:12px}
-.card{background:#1c1c1e;border-radius:16px;padding:18px}
-.item{margin:14px 0}
-.lab{color:#8a8a8a;font-size:12px;letter-spacing:1px}
-.val{font-weight:700;margin-top:5px;word-break:break-all;line-height:1.6;font-size:15px}
+h2{color:#ffcc00;margin:0 0 12px 0;font-size:18px}
+.card{background:#1e1e1e;border-radius:16px;padding:16px;display:block}
+.item{margin-bottom:16px}
+.lab{font-size:11px;color:#777;letter-spacing:1px}
+.val{font-size:15px;font-weight:700;margin-top:4px;word-break:break-word;white-space:normal;overflow-wrap:anywhere;line-height:1.6}
 .val.yellow{color:#ffcc00}
 </style>
 </head>
 <body>
-<div class="top">BAGUS4DE - HK</div>
+<div class="header">
+  <span class="logo">BAGUS4DE</span>
+  <button onclick="load('sdy')" id="b-sdy">SDY</button>
+  <button onclick="load('sgp')" id="b-sgp">SGP</button>
+  <button onclick="load('hk')" id="b-hk" class="active">HK</button>
+</div>
 <div class="wrap">
-  <div class="judul">Prediksi Bagus4de Pasaran HK hari ini!</div>
+  <h2 id="judul">Prediksi Bagus4de Pasaran HK hari ini!</h2>
   <div class="card" id="box">Loading...</div>
 </div>
 
 <script>
-async function load(){
-  let r = await fetch('/api/index?pasaran=hk');
+async function load(p){
+  document.querySelectorAll('.header button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('b-'+p).classList.add('active');
+  document.getElementById('judul').innerText = 'Prediksi Bagus4de Pasaran '+p.toUpperCase()+' hari ini!';
+  
+  let r = await fetch('/api/index?pasaran='+p);
   let j = await r.json();
-  console.log(j);
-  // karena tabel kamu: pasaran | data(json)
-  let d = j.prediksi ? j.prediksi.data : null;
-  // fallback kalau api langsung balikin data
-  if(!d && j.data) d = j.data;
-  if(!d && j.prediksi && j.prediksi.bbfs) d = j.prediksi;
-
-  if(!d) {
-    document.getElementById('box').innerHTML = 'Data HK belum ada di Supabase';
+  // tabel kamu: pasaran | data(json)
+  let d = j.prediksi?.data || j.prediksi || j.data;
+  
+  if(!d || !d.bbfs){
+    document.getElementById('box').innerHTML = 'Belum ada data '+p;
     return;
   }
-
+  
   document.getElementById('box').innerHTML = `
-    <div class="item"><div class="lab">BBFS:</div><div class="val">${d.bbfs || '-'}</div></div>
-    <div class="item"><div class="lab">4D:</div><div class="val yellow">${d['4d'] || d.d4 || '-'}</div></div>
-    <div class="item"><div class="lab">3D:</div><div class="val">${d['3d'] || d.d3 || '-'}</div></div>
-    <div class="item"><div class="lab">2D:</div><div class="val">${d['2d'] || d.d2 || '-'}</div></div>
+    <div class="item"><div class="lab">BBFS</div><div class="val">${d.bbfs}</div></div>
+    <div class="item"><div class="lab">4D JITU</div><div class="val yellow">${d['4d']}</div></div>
+    <div class="item"><div class="lab">3D</div><div class="val">${d['3d']}</div></div>
+    <div class="item"><div class="lab">2D</div><div class="val">${d['2d']}</div></div>
   `;
 }
-load();
+load('hk');
 </script>
 </body>
 </html>
