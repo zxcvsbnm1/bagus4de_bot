@@ -1,9 +1,10 @@
 {
   "name": "bagus4de-bot",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Bot prediksi ambil dari Supabase",
+  "main": "api/index.js",
+  "type": "commonjs",
   "dependencies": {
-    "telegraf": "^4.15.0",
-    "axios": "^1.7.0"
+    "@supabase/supabase-js": "^2.45.4"
   }
 }
