@@ -1,6 +1,7 @@
 {
   "name": "bagus4de-bot",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "telegraf": "^4.15.0",
     "axios": "^1.7.0"
