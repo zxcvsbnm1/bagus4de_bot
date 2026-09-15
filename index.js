@@ -28,4 +28,4 @@ async function loadPasaran(pasaran){
 document.getElementById('btn-sdy').onclick = ()=>{ hideAll(); document.getElementById('page-sdy').style.display='block'; loadPasaran('sdy') }
 document.getElementById('btn-sgp').onclick = ()=>{ hideAll(); document.getElementById('page-sgp').style.display='block'; loadPasaran('sgp') }
 document.getElementById('btn-hk').onclick = ()=>{ hideAll(); document.getElementById('page-hk').style.display='block'; loadPasaran('hk') }
-document.getElementById('btn-home').onclick = ()=>{ hideAll(); document.getElementById('page-home').style.display='block' }
+document.getElementById('bt
