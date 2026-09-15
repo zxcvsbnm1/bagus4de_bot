@@ -1,25 +1,17 @@
+import { Telegraf } from 'telegraf';
+
+const bot = new Telegraf(process.env.BOT_TOKEN);
+
+bot.start((ctx) => ctx.reply('Bagus4D Bot jalan di Vercel Bosku! Mantap Bosku!'));
+bot.on('text', (ctx) => ctx.reply(`Bosku kirim: ${ctx.message.text}`));
+
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    return res.status(200).send('Bot Bagus4D Jalan Bosku!');
-  }
+  if (req.method === 'GET') return res.status(200).send('Bot Jalan Bosku!');
   try {
-    const token = process.env.BOT_TOKEN;
-    const msg = req.body?.message;
-    if (msg) {
-      // Balas dulu Bosku biar gak timeout Bosku
-      res.status(200).json({ ok: true });
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: msg.chat.id,
-          text: `Masuk Bosku: ${msg.text}`
-        })
-      });
-      return;
-    }
-    res.status(200).json({ ok: true });
+    await bot.handleUpdate(req.body);
+    res.status(200).send('OK');
   } catch (e) {
-    res.status(200).json({ ok: true });
+    console.error(e);
+    res.status(200).send('OK');
   }
 }
