@@ -1,7 +1,7 @@
 {
   "name": "bagus4de-bot",
   "version": "1.0.0",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "cheerio": "^1.0.0"
