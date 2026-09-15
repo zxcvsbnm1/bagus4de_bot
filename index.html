@@ -3,57 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HK - BAGUS4DE</title>
 <style>
-body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial;padding:0}
-.header{background:#111;padding:12px 15px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #222}
-.logo{color:#ffcc00;font-weight:900}
-.header button{padding:7px 14px;border-radius:20px;border:none;background:#2a2a2a;color:#fff}
-.header button.active{background:#ffcc00;color:#000}
+*{box-sizing:border-box}
+body{margin:0;background:#0a0a0a;color:#fff;font-family:Arial}
+.header{position:sticky;top:0;background:#111;padding:12px;border-bottom:1px solid #222;display:flex;gap:8px;align-items:center;z-index:10}
+.logo{color:#ffcc00;font-weight:900;margin-right:8px}
+.header a{padding:7px 14px;border-radius:20px;background:#222;color:#fff;text-decoration:none;font-size:13px}
+.header a.active{background:#ffcc00;color:#000;font-weight:700}
 .wrap{padding:16px}
-h2{color:#ffcc00;margin:0 0 12px 0;font-size:18px}
-.card{background:#1e1e1e;border-radius:16px;padding:16px;display:block}
-.item{margin-bottom:16px}
-.lab{font-size:11px;color:#777;letter-spacing:1px}
-.val{font-size:15px;font-weight:700;margin-top:4px;word-break:break-word;white-space:normal;overflow-wrap:anywhere;line-height:1.6}
-.val.yellow{color:#ffcc00}
+.judul{color:#ffcc00;font-weight:900;margin:0 0 10px 0;font-size:20px;text-transform:uppercase}
+.card{background:#1c1c1e;border-radius:16px;padding:18px;width:100%;overflow:hidden}
+.block{margin-bottom:18px;display:block;width:100%}
+.block:last-child{margin-bottom:0}
+.label{font-size:11px;color:#666;letter-spacing:1px;margin-bottom:6px}
+.value{font-size:16px;font-weight:700;line-height:1.8;word-break:break-all;white-space:normal;overflow-wrap:break-word;display:block;width:100%}
+.value.yellow{color:#ffcc00}
+.value span{display:inline-block;background:#2a2a2a;border-radius:6px;padding:2px 7px;margin:3px;font-size:14px}
 </style>
 </head>
 <body>
 <div class="header">
-  <span class="logo">BAGUS4DE</span>
-  <button onclick="load('sdy')" id="b-sdy">SDY</button>
-  <button onclick="load('sgp')" id="b-sgp">SGP</button>
-  <button onclick="load('hk')" id="b-hk" class="active">HK</button>
+ <span class="logo">BAGUS4DE</span>
+ <a href="?pasaran=sdy">SDY</a>
+ <a href="?pasaran=sgp">SGP</a>
+ <a href="?pasaran=hk" class="active">HK</a>
 </div>
 <div class="wrap">
-  <h2 id="judul">Prediksi Bagus4de Pasaran HK hari ini!</h2>
-  <div class="card" id="box">Loading...</div>
+ <h2 class="judul" id="judul">Prediksi Bagus4de Pasaran HK hari ini!</h2>
+ <div class="card" id="box">Loading...</div>
 </div>
 
 <script>
-async function load(p){
-  document.querySelectorAll('.header button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('b-'+p).classList.add('active');
-  document.getElementById('judul').innerText = 'Prediksi Bagus4de Pasaran '+p.toUpperCase()+' hari ini!';
-  
-  let r = await fetch('/api/index?pasaran='+p);
+async function load(){
+  const params = new URLSearchParams(location.search);
+  const pas = (params.get('pasaran')||'hk').toLowerCase();
+  document.getElementById('judul').innerText = 'Prediksi Bagus4de Pasaran '+pas.toUpperCase()+' hari ini!';
+
+  let r = await fetch('/api/index?pasaran='+pas);
   let j = await r.json();
-  // tabel kamu: pasaran | data(json)
-  let d = j.prediksi?.data || j.prediksi || j.data;
-  
-  if(!d || !d.bbfs){
-    document.getElementById('box').innerHTML = 'Belum ada data '+p;
-    return;
-  }
-  
+  let d = j.prediksi?.data || j.data || j.prediksi;
+
+  if(!d){ document.getElementById('box').innerHTML='Data tidak ada'; return; }
+
+  const toSpans = (txt) => (txt||'').toString().split(',').map(s=>`<span>${s.trim()}</span>`).join('');
+
   document.getElementById('box').innerHTML = `
-    <div class="item"><div class="lab">BBFS</div><div class="val">${d.bbfs}</div></div>
-    <div class="item"><div class="lab">4D JITU</div><div class="val yellow">${d['4d']}</div></div>
-    <div class="item"><div class="lab">3D</div><div class="val">${d['3d']}</div></div>
-    <div class="item"><div class="lab">2D</div><div class="val">${d['2d']}</div></div>
+    <div class="block"><div class="label">BBFS</div><div class="value">${toSpans(d.bbfs)}</div></div>
+    <div class="block"><div class="label">4D JITU</div><div class="value yellow">${toSpans(d['4d'])}</div></div>
+    <div class="block"><div class="label">3D</div><div class="value">${toSpans(d['3d'])}</div></div>
+    <div class="block"><div class="label">2D</div><div class="value">${toSpans(d['2d'])}</div></div>
   `;
 }
-load('hk');
+load();
 </script>
 </body>
 </html>
