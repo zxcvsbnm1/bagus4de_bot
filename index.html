@@ -1,53 +1,23 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BAGUS4DE</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#0a0a0a;color:#fff;font-family:Arial}
-.header{background:#111;padding:12px;border-bottom:1px solid #222;display:flex;gap:8px;align-items:center;overflow:auto}
-.logo{color:#ffcc00;font-weight:900}
-.header a{padding:8px 16px;border-radius:20px;background:#222;color:#fff;text-decoration:none;font-size:14px}
-.header a.on{background:#ffcc00;color:#000;font-weight:700}
-.wrap{padding:16px}
-.card{background:#1c1c1e;border-radius:16px;padding:18px}
-.line{margin-bottom:18px}
-.lab{font-size:11px;color:#666;margin-bottom:6px;letter-spacing:1px}
-.val{font-size:18px;font-weight:700;word-break:break-word;white-space:normal;line-height:1.6}
-.val.y{color:#ffcc00}
-</style>
-</head>
-<body>
-<div class="header">
-  <b class="logo">BAGUS4DE</b>
-  <a href="/index.html?pasaran=sdy" id="b-sdy">SDY</a>
-  <a href="/index.html?pasaran=sgp" id="b-sgp">SGP</a>
-  <a href="/index.html?pasaran=hk" id="b-hk">HK</a>
-</div>
-<div class="wrap">
-  <h2 id="judul" style="color:#ffcc00;margin:0 0 12px 0">Prediksi Hari Ini</h2>
-  <div class="card" id="box">Loading...</div>
-</div>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAGUS4DE</title>
+<style>body{margin:0;background:#0a0a0a;color:#fff;font-family:Arial}.top{background:#111;padding:12px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid #222}.top a{text-decoration:none;padding:8px 14px;border-radius:20px;background:#222;color:#fff}.top a.on{background:#ffcc00;color:#000;font-weight:700}.wrap{padding:16px}.card{background:#151515;border:1px solid #222;border-radius:16px;padding:16px}.item{border-bottom:1px solid #222;padding:12px 0}.item:last-child{border:0}.l{font-size:11px;color:#666;margin-bottom:5px}.v{font-size:17px;font-weight:700;word-break:break-all;line-height:1.5}.v.y{color:#ffcc00}</style>
+</head><body>
+<div class="top"><b style="color:#ffcc00;margin-right:6px">BAGUS4DE</b><a href="/?pasaran=sdy" id="a-sdy">SDY</a><a href="/?pasaran=sgp" id="a-sgp">SGP</a><a href="/?pasaran=hk" id="a-hk">HK</a></div>
+<div class="wrap"><h2 id="judul" style="color:#ffcc00">Prediksi Hari Ini</h2><div class="card" id="box">Loading...</div></div>
 <script>
-async function load(){
-  let p = new URLSearchParams(location.search).get('pasaran') || 'sdy';
-  document.getElementById('judul').innerText = 'Prediksi ' + p.toUpperCase() + ' Hari Ini';
-  document.querySelectorAll('.header a').forEach(a=>a.classList.remove('on'));
-  let btn = document.getElementById('b-'+p); if(btn) btn.classList.add('on');
-  let r = await fetch('/api/index?pasaran='+p+'&t='+Date.now());
-  let j = await r.json();
-  let d = j.prediksi?.data || j.prediksi;
-  if(!d){ document.getElementById('box').innerHTML='Data belum ada'; return; }
-  document.getElementById('box').innerHTML = `
-    <div class="line"><div class="lab">BBFS</div><div class="val">${d.bbfs}</div></div>
-    <div class="line"><div class="lab">4D JITU</div><div class="val y">${d['4d']}</div></div>
-    <div class="line"><div class="lab">3D</div><div class="val">${d['3d']}</div></div>
-    <div class="line"><div class="lab">2D</div><div class="val">${d['2d']}</div></div>
-  `;
-}
-load();
+(async()=>{
+let p=new URLSearchParams(location.search).get('pasaran')||'hk';
+document.getElementById('judul').innerText='Prediksi '+p.toUpperCase()+' Hari Ini';
+let btn=document.getElementById('a-'+p);if(btn)btn.classList.add('on');
+let res=await fetch('/api/index?pasaran='+p+'&t='+Date.now());
+let json=await res.json();
+let d=json.prediksi?.data||json.prediksi||{};
+document.getElementById('box').innerHTML=`
+<div class="item"><div class="l">BBFS</div><div class="v">${d.bbfs||''}</div></div>
+<div class="item"><div class="l">4D JITU</div><div class="v y">${d['4d']||''}</div></div>
+<div class="item"><div class="l">3D</div><div class="v">${d['3d']||''}</div></div>
+<div class="item"><div class="l">2D</div><div class="v">${d['2d']||''}</div></div>
+`;
+})();
 </script>
-</body>
-</html>
+</body></html>
