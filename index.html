@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAGUS4DE</title>
+<style>
+  body{margin:0;background:#0f0f0f;color:white;font-family:Arial, sans-serif}
+  .header{display:flex;align-items:center;gap:8px;padding:10px;background:#000;border-bottom:1px solid #333;position:sticky;top:0;z-index:10}
+  .logo{color:#ffcc00;font-weight:900;font-size:20px}
+  .menu{display:flex;gap:6px}
+  .menu button{background:#222;color:#fff;border:1px solid #333;padding:8px 14px;border-radius:20px;font-weight:bold;cursor:pointer}
+  .menu button.active{background:#ffcc00;color:#000;border-color:#ffcc00}
+  .page{padding:12px;display:none}
+  .page.active{display:block}
+  /* KARTU PREDIKSI - INI FIX TABRAKAN */
+  .card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:16px;padding:16px;margin-top:12px}
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card-grid .item{overflow:hidden}
+  .label{color:#888;font-size:12px;display:block;margin-bottom:4px}
+  .value{font-weight:bold;font-size:16px;word-break:break-word;white-space:normal;line-height:1.4}
+  .value.yellow{color:#ffcc00}
+  table{width:100%;border-collapse:collapse;margin-top:10px;background:#1c1c1c;border-radius:10px;overflow:hidden}
+  th{background:#222;color:#ffcc00;padding:10px;font-size:12px}
+  td{padding:10px;text-align:center;border-top:1px solid #2a2a2a;font-size:14px}
+  .back{color:#888;font-size:14px;margin:10px 0;display:block;cursor:pointer}
+  h2{color:#ffcc00;margin:5px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">BAGUS4DE</div>
+  <div class="menu">
+    <button id="btn-home" class="active">HOME</button>
+    <button id="btn-sdy">SDY</button>
+    <button id="btn-sgp">SGP</button>
+    <button id="btn-hk">HK</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <h2>Selamat Datang</h2>
+  <p style="color:#888">Pilih pasaran di atas untuk lihat jadwal & prediksi.</p>
+  <div id="home-prediksi"></div>
+</div>
+
+<!-- SDY -->
+<div id="page-sdy" class="page">
+  <span class="back" onclick="showPage('home')">← Kembali ke Home</span>
+  <h2>PREDIKSI SDY 16 SEPT 2026</h2>
+  <div id="prediksi-sdy"></div>
+  <h2 style="margin-top:20px">JADWAL SDY</h2>
+  <table><thead><tr><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th><th>Min</th></tr></thead><tbody id="tabel-sdy"><tr><td colspan="7">Loading...</td></tr></tbody></table>
+</div>
+
+<!-- SGP -->
+<div id="page-sgp" class="page">
+  <span class="back" onclick="showPage('home')">← Kembali ke Home</span>
+  <h2>PREDIKSI SGP</h2>
+  <div id="prediksi-sgp"></div>
+  <h2 style="margin-top:20px">JADWAL SGP</h2>
+  <table><thead><tr><th>Sen</th><th>Rab</th><th>Kam</th><th>Sab</th><th>Min</th></tr></thead><tbody id="tabel-sgp"><tr><td colspan="5">Loading...</td></tr></tbody></table>
+</div>
+
+<!-- HK -->
+<div id="page-hk" class="page">
+  <span class="back" onclick="showPage('home')">← Kembali ke Home</span>
+  <h2>PREDIKSI HK</h2>
+  <div id="prediksi-hk"></div>
+  <h2 style="margin-top:20px">JADWAL HK</h2>
+  <table><thead><tr><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th><th>Min</th></tr></thead><tbody id="tabel-hk"><tr><td colspan="7">Loading...</td></tr></tbody></table>
+</div>
+
+<script>
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('btn-'+p).classList.add('active');
+  if(p!=='home') loadPasaran(p);
+}
+
+document.getElementById('btn-home').onclick=()=>showPage('home');
+document.getElementById('btn-sdy').onclick=()=>showPage('sdy');
+document.getElementById('btn-sgp').onclick=()=>showPage('sgp');
+document.getElementById('btn-hk').onclick=()=>showPage('hk');
+
+function buatKartuPrediksi(d){
+  if(!d) return '<div class="card">Tidak ada prediksi</div>';
+  // ini yang fix tabrakan - pakai word-break
+  return `<div class="card">
+    <div class="card-grid">
+      <div class="item"><span class="label">BBFS</span><div class="value">${d.bbfs||'-'}</div></div>
+      <div class="item"><span class="label">4D JITU</span><div class="value yellow">${d.d4||d.jitu4d||'-'}</div></div>
+      <div class="item"><span class="label">3D</span><div class="value">${d.d3||d.jitu3d||'-'}</div></div>
+      <div class="item"><span class="label">2D</span><div class="value">${d.d2||d.jitu2d||'-'}</div></div>
+    </div>
+  </div>`;
+}
+
+async function loadPasaran(pasaran){
+  const tbody = document.getElementById('tabel-'+pasaran);
+  const predDiv = document.getElementById('prediksi-'+pasaran);
+  tbody.innerHTML='<tr><td colspan="7">Loading...</td></tr>';
+  try{
+    const res = await fetch(`/api/index?pasaran=${pasaran}`);
+    const json = await res.json();
+    if(json.error){ tbody.innerHTML=`<tr><td>${json.error}</td></tr>`; return; }
+    
+    // tampilkan prediksi jika ada
+    if(json.prediksi) predDiv.innerHTML = buatKartuPrediksi(json.prediksi);
+    
+    // tampilkan jadwal
+    let html='';
+    json.jadwal.forEach(r=>{
+      if(pasaran==='sgp'){
+        html+=`<tr><td>${r.senin||'-'}</td><td>${r.rabu||'-'}</td><td>${r.kamis||'-'}</td><td>${r.sabtu||'-'}</td><td>${r.minggu||'-'}</td></tr>`;
+      }else{
+        html+=`<tr><td>${r.senin||'-'}</td><td>${r.selasa||'-'}</td><td>${r.rabu||'-'}</td><td>${r.kamis||'-'}</td><td>${r.jumat||'-'}</td><td>${r.sabtu||'-'}</td><td>${r.minggu||'-'}</td></tr>`;
+      }
+    });
+    tbody.innerHTML = html || '<tr><td>Tidak ada data</td></tr>';
+  }catch(e){
+    tbody.innerHTML = `<tr><td>Error: ${e.message}</td></tr>`;
+  }
+}
+</script>
+</body>
+</html>
